@@ -1,0 +1,15 @@
+{
+  "name": "study-session-cli",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local study session logging and weekly summaries",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test",
+    "start": "node cli.js"
+  },
+  "license": "MIT"
+}
