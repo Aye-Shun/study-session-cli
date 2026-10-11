@@ -1,17 +1,19 @@
 # Study Session CLI
 
-A small **Node.js / JavaScript** tool for logging study time and viewing a seven-day summary by subject. Data stays in a local JSON file, and the project uses only Node's built-in modules.
+A small JavaScript command-line program for recording study sessions. It saves a JSON file and adds up the last seven days by subject. It uses only Node's built-in modules.
 
-## Quick start
+## Try it
 
-Requires Node.js 22 or newer. No dependencies or install step.
+Use Node.js 22 or newer. No install step is needed. In the repository folder with no existing `.sessions.json`, run:
 
-```bash
+```sh
 node cli.js add "Algorithms" 45 2026-10-10
 node cli.js add "SQL" 30 2026-10-09
 node cli.js list
 node cli.js summary 2026-10-10
 ```
+
+The summary prints:
 
 ```text
 2026-10-04 to 2026-10-10: 75 minutes across 2 sessions
@@ -19,54 +21,35 @@ node cli.js summary 2026-10-10
   SQL: 30 min
 ```
 
-Omit the date to use today's local calendar date:
+Run the example once for this result; repeating `add` records more sessions.
 
-```bash
-node cli.js add "Deep Learning" 60
-node cli.js summary
-node cli.js --help
-```
+## Commands and storage
 
-## Commands
+- `add "Subject" MINUTES [DATE]` records a session.
+- `list` prints sessions in date order.
+- `summary [DATE]` totals that date and the preceding six days.
+- `--help` prints the command syntax.
 
-| Command | Purpose |
-| --- | --- |
-| `add "Subject" MINUTES [DATE]` | Append a completed session |
-| `list` | Show all sessions ordered by date |
-| `summary [DATE]` | Group minutes by subject for that date and the preceding six days |
+Dates use `YYYY-MM-DD`; omitting a date uses today's local date. Minutes must be an integer from 1 to 1440. Subject names are trimmed and case-sensitive. Invalid input or an unreadable data file returns exit code 1.
 
-Minutes must be an integer from 1 to 1440. Dates must be real calendar dates in `YYYY-MM-DD` format. Subject names are trimmed and case-sensitive. Invalid commands or data return exit code 1.
+Data goes in `.sessions.json` in the current directory, which is ignored by Git. To use another path:
 
-## Storage
-
-Sessions are stored in `.sessions.json` in your current directory. This file is ignored by Git. You can choose another location:
-
-```bash
+```sh
 STUDY_FILE=./data/study.json node cli.js add "Python" 25
 ```
 
-In PowerShell, set `$env:STUDY_FILE = './data/study.json'` before running the command.
+In PowerShell, set `$env:STUDY_FILE = './data/study.json'` first. Writes go through a temporary file, and invalid existing JSON is reported rather than replaced.
 
-Each record contains a UUID, subject, minutes, and date. Writes use a temporary file and rename to avoid leaving partially written JSON. Invalid existing data raises an error instead of being replaced. Back up your data file if the records matter to you.
+## Tests
 
-## Design and tests
-
-```text
-cli.js                   Argument handling and text output
-src/sessions.js          Validation, persistence, date window and aggregation
-test/sessions.test.js    Unit tests and real CLI subprocess tests
-```
-
-```bash
+```sh
 npm test
 ```
 
-Tests cover persistence, input validation, calendar boundaries, corrupted files, and CLI behavior. GitHub Actions runs on Node.js 22 and 24.
+Tests cover saved sessions, validation, the seven-day window, corrupt files, and the CLI. GitHub Actions runs them on Node.js 22 and 24. The date and file logic lives in `src/sessions.js`; `cli.js` handles arguments and output.
 
-## Scope
+## Limitations
 
-This is a manual session log, not a live timer. Run one command at a time: concurrent writers are not coordinated. The file is read into memory, so this is intended for personal-sized logs. Possible extensions include CSV export, editing/deleting sessions, and weekly goals.
+This is a manual log, so it does not time sessions. There is no edit/delete command. Run one command at a time: concurrent writes can lose entries. The whole log is read into memory. Keep a backup of the JSON file if you want to keep the records.
 
-## License
-
-MIT — see [LICENSE](LICENSE).
+[MIT license](LICENSE).
